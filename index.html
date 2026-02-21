@@ -24,10 +24,13 @@
     <nav class="nav" aria-label="Điều hướng lịch">
       <button type="button" data-action="prev-year" aria-label="Năm trước">&laquo;</button>
       <button type="button" data-action="prev-month" aria-label="Tháng trước">&lsaquo;</button>
-      <button type="button" data-action="today" class="today-btn">Hôm nay</button>
-      <span class="month-year" id="monthYear" aria-live="polite"></span>
+      <div class="month-year">
+        <select id="selMonth" aria-label="Chọn tháng"></select>
+        <select id="selYear" aria-label="Chọn năm"></select>
+      </div>
       <button type="button" data-action="next-month" aria-label="Tháng sau">&rsaquo;</button>
       <button type="button" data-action="next-year" aria-label="Năm sau">&raquo;</button>
+      <button type="button" data-action="today" class="today-btn">Hôm nay</button>
     </nav>
 
     <div class="calendar" role="grid" aria-label="Lịch tháng">
@@ -66,12 +69,16 @@ const SOLAR_MONTHS = [
 
 let currentMonth, currentYear, selectedDate;
 
-const $todayPanel = document.getElementById("todayPanel");
-const $monthYear  = document.getElementById("monthYear");
-const $calGrid    = document.getElementById("calGrid");
-const $detail     = document.getElementById("detailPanel");
+const $todayPanel  = document.getElementById("todayPanel");
+const $selMonth    = document.getElementById("selMonth");
+const $selYear     = document.getElementById("selYear");
+const $calGrid     = document.getElementById("calGrid");
+const $detail      = document.getElementById("detailPanel");
 const $detailTitle = document.getElementById("detailTitle");
 const $detailGrid  = document.getElementById("detailGrid");
+
+const YEAR_MIN = 1900;
+const YEAR_MAX = 2100;
 
 // ---- Telegram Mini App ----
 
@@ -113,6 +120,38 @@ function applyTgTheme(tp) {
 
 initTelegram();
 
+// ---- Selects ----
+
+function populateSelects() {
+  for (let m = 1; m <= 12; m++) {
+    const opt = document.createElement("option");
+    opt.value = m;
+    opt.textContent = SOLAR_MONTHS[m];
+    $selMonth.appendChild(opt);
+  }
+  for (let y = YEAR_MIN; y <= YEAR_MAX; y++) {
+    const opt = document.createElement("option");
+    opt.value = y;
+    opt.textContent = y;
+    $selYear.appendChild(opt);
+  }
+}
+
+function syncSelects() {
+  $selMonth.value = currentMonth;
+  $selYear.value = currentYear;
+}
+
+$selMonth.addEventListener("change", () => {
+  currentMonth = +$selMonth.value;
+  render();
+});
+
+$selYear.addEventListener("change", () => {
+  currentYear = +$selYear.value;
+  render();
+});
+
 // ---- Navigation (event delegation) ----
 
 document.querySelector(".nav").addEventListener("click", (e) => {
@@ -130,12 +169,14 @@ document.querySelector(".nav").addEventListener("click", (e) => {
     selectedDate = { d: now.getDate(), m: currentMonth, y: currentYear };
     showDetail(selectedDate.d, selectedDate.m, selectedDate.y);
   }
+  currentYear = Math.max(YEAR_MIN, Math.min(YEAR_MAX, currentYear));
   render();
 });
 
 // ---- Rendering ----
 
 function init() {
+  populateSelects();
   const now = new Date();
   currentMonth = now.getMonth() + 1;
   currentYear = now.getFullYear();
@@ -160,7 +201,7 @@ function renderTodayPanel(now) {
 }
 
 function render() {
-  $monthYear.textContent = SOLAR_MONTHS[currentMonth] + " — " + currentYear;
+  syncSelects();
   $calGrid.innerHTML = "";
 
   const cells = calendarMonthData(currentMonth, currentYear, TZ);

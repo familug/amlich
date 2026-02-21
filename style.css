@@ -172,10 +172,23 @@ header .subtitle {
 .nav button:hover { background: var(--hover); }
 
 .nav .month-year {
-  font-size: 1.15rem;
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.nav .month-year select {
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E") no-repeat right 0.5rem center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.45rem 1.5rem 0.45rem 0.6rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  min-width: 180px;
-  text-align: center;
+  color: var(--text);
+  cursor: pointer;
+  min-height: 44px;
 }
 
 .nav .today-btn {
@@ -355,7 +368,12 @@ footer {
 
   .nav .month-year {
     min-width: 0;
-    font-size: 1rem;
+    justify-content: center;
+  }
+
+  .nav .month-year select {
+    font-size: 0.85rem;
+    padding: 0.4rem 1.3rem 0.4rem 0.4rem;
   }
 
   .nav button { padding: 0.45rem 0.7rem; font-size: 0.9rem; }
@@ -378,5 +396,5 @@ footer {
 @media (max-width: 360px) {
   .cal-cell .solar { font-size: 0.82rem; }
   .cal-cell .lunar { font-size: 0.52rem; }
-  .nav .month-year { font-size: 0.9rem; }
+  .nav .month-year select { font-size: 0.8rem; padding-right: 1rem; }
 }
