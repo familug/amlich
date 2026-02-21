@@ -2,11 +2,12 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="Âm lịch Việt Nam — tra cứu ngày âm lịch, Can Chi, tiết khí.">
   <meta name="theme-color" content="#c0392b" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#e74c3c" media="(prefers-color-scheme: dark)">
   <title>Âm Lịch Việt Nam</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -71,6 +72,46 @@ const $calGrid    = document.getElementById("calGrid");
 const $detail     = document.getElementById("detailPanel");
 const $detailTitle = document.getElementById("detailTitle");
 const $detailGrid  = document.getElementById("detailGrid");
+
+// ---- Telegram Mini App ----
+
+function initTelegram() {
+  const tg = window.Telegram?.WebApp;
+  if (!tg?.initData) return;
+
+  document.documentElement.classList.add("tg");
+  tg.ready();
+  tg.expand();
+
+  applyTgTheme(tg.themeParams);
+  tg.onEvent("themeChanged", () => applyTgTheme(tg.themeParams));
+}
+
+function hexToRgb(hex) {
+  const n = parseInt(hex.replace("#", ""), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+function applyTgTheme(tp) {
+  if (!tp?.bg_color) return;
+  const s = document.documentElement.style;
+  const [r, g, b] = hexToRgb(tp.hint_color || "#888888");
+
+  s.setProperty("--bg", tp.bg_color);
+  s.setProperty("--card", tp.secondary_bg_color || tp.section_bg_color || tp.bg_color);
+  s.setProperty("--text", tp.text_color);
+  s.setProperty("--muted", tp.hint_color || tp.subtitle_text_color);
+  s.setProperty("--border", `rgba(${r}, ${g}, ${b}, 0.3)`);
+  s.setProperty("--hover", tp.secondary_bg_color || tp.bg_color);
+  s.setProperty("--shadow", "none");
+
+  if (tp.button_color) {
+    s.setProperty("--tg-btn-bg", tp.button_color);
+    s.setProperty("--tg-btn-text", tp.button_text_color || "#ffffff");
+  }
+}
+
+initTelegram();
 
 // ---- Navigation (event delegation) ----
 

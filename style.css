@@ -60,6 +60,9 @@ body {
   max-width: 800px;
   margin: 0 auto;
   padding: 1.5rem 1rem;
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
 }
 
 header {
@@ -78,6 +81,22 @@ header .subtitle {
   color: var(--muted);
   font-size: 0.9rem;
   margin-top: 0.2rem;
+}
+
+/* ========== Telegram Mini App ========== */
+
+.tg header {
+  display: none;
+}
+
+.tg .container {
+  padding-top: 0.75rem;
+}
+
+.tg .nav .today-btn {
+  background: var(--tg-btn-bg, var(--red));
+  color: var(--tg-btn-text, #fff);
+  border-color: var(--tg-btn-bg, var(--red));
 }
 
 /* ========== Today Panel ========== */

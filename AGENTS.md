@@ -278,11 +278,77 @@ For keyboard accessibility, calendar cells are `<button type="button">` not
 padding cells, and `aria-label` with the solar/lunar date for screen readers.
 The CSS resets button appearance via `appearance: none` on `.cal-cell`.
 
+## Telegram Mini App
+
+The app is compatible as a Telegram Mini App. It works both as a standalone
+web page and inside Telegram — detection is automatic via `Telegram.WebApp.initData`.
+
+### How it works
+
+1. The Telegram Web App SDK (`telegram-web-app.js`) is loaded in `<head>`.
+   Outside Telegram, the SDK is inert (no `initData`), so nothing changes.
+2. On load, `initTelegram()` checks for `window.Telegram.WebApp.initData`.
+   If present, it:
+   - Adds class `tg` to `<html>` (used by CSS to hide the header, adjust
+     spacing, and restyle the today button)
+   - Calls `tg.ready()` (signals the app is loaded to Telegram)
+   - Calls `tg.expand()` (expands to full viewport height)
+   - Reads `tg.themeParams` and overrides CSS custom properties so the
+     calendar matches the user's Telegram theme
+   - Listens for `themeChanged` and re-applies
+
+### Theme mapping
+
+Telegram theme params are mapped to CSS variables by `applyTgTheme()`:
+
+| Telegram param         | CSS variable   | Notes                          |
+|------------------------|----------------|--------------------------------|
+| `bg_color`             | `--bg`         |                                |
+| `secondary_bg_color`   | `--card`       | Falls back to `section_bg_color` then `bg_color` |
+| `text_color`           | `--text`       |                                |
+| `hint_color`           | `--muted`      |                                |
+| `hint_color` @ 30%     | `--border`     | Derived via `rgba()`           |
+| `secondary_bg_color`   | `--hover`      |                                |
+| `button_color`         | `--tg-btn-bg`  | Only the "Hôm nay" button      |
+| `button_text_color`    | `--tg-btn-text`|                                |
+
+The Vietnamese accent colors (`--red`, `--gold`) are **not** overridden —
+they preserve the calendar's cultural identity inside Telegram.
+
+### CSS `.tg` class
+
+When inside Telegram, `<html class="tg">` enables:
+- `header { display: none }` — Telegram already shows the app name
+- Reduced top padding
+- "Hôm nay" button uses Telegram's `button_color` / `button_text_color`
+
+### Setting up the bot
+
+1. Message `@BotFather` on Telegram
+2. `/newbot` → create your bot
+3. `/newapp` → select your bot → enter the GitHub Pages URL
+   (e.g., `https://username.github.io/amlich/`)
+4. Users can open the Mini App via the bot menu button or a direct link:
+   `https://t.me/your_bot/amlich`
+
+### Safe areas
+
+The CSS uses `env(safe-area-inset-*)` on `.container` for notched phones.
+The `<meta name="viewport">` includes `viewport-fit=cover` so the app
+extends behind the notch and applies its own inset padding.
+
 ## Deployment
+
+### GitHub Pages
 
 Push to GitHub and enable GitHub Pages (Settings → Pages → Branch: main).
 No build step required. The site serves `index.html`, `style.css`, and
 `amlich.js`. Other files (`amlich.test.js`, `AGENTS.md`) don't affect the site.
+
+### Telegram Mini App
+
+After deploying to GitHub Pages, set the URL in BotFather (see above). The
+same deployment serves both the web page and the Telegram Mini App.
 
 ## Possible Future Enhancements
 
