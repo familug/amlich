@@ -53,6 +53,7 @@ body {
   color: var(--text);
   line-height: 1.5;
   min-height: 100vh;
+  -webkit-text-size-adjust: 100%;
 }
 
 .container {
@@ -135,10 +136,14 @@ header .subtitle {
 }
 
 .nav button {
+  -webkit-appearance: none;
+  appearance: none;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0.5rem 1rem;
+  min-height: 44px;
+  min-width: 44px;
   cursor: pointer;
   font-size: 0.95rem;
   color: var(--text);
@@ -196,10 +201,12 @@ header .subtitle {
 }
 
 .cal-cell {
+  -webkit-appearance: none;
   appearance: none;
   background: transparent;
   font: inherit;
   color: inherit;
+  min-width: 0;
   aspect-ratio: 1;
   border: 1px solid var(--border);
   border-top: none;
@@ -212,7 +219,6 @@ header .subtitle {
   cursor: pointer;
   transition: background 0.12s;
   position: relative;
-  min-height: 70px;
 }
 
 .cal-cell:nth-child(7n+1) { border-left: none; }
@@ -236,6 +242,7 @@ header .subtitle {
   color: var(--muted);
   line-height: 1.2;
   text-align: center;
+  white-space: nowrap;
 }
 
 .cal-cell.sunday .solar,
@@ -305,9 +312,52 @@ footer {
 /* ========== Responsive ========== */
 
 @media (max-width: 600px) {
-  .cal-cell { min-height: 55px; }
-  .cal-cell .solar { font-size: 0.95rem; }
-  .cal-cell .lunar { font-size: 0.6rem; }
-  .today-panel { flex-direction: column; text-align: center; gap: 0.8rem; }
+  .container { padding: 1rem 0.5rem; }
+
+  .today-panel {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.8rem;
+    padding: 1rem;
+  }
+
+  .today-panel .details { min-width: 0; }
+
+  .nav {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto auto;
+    gap: 0.4rem;
+  }
+
+  .nav .today-btn {
+    grid-column: 1 / -1;
+    order: 1;
+  }
+
+  .nav .month-year {
+    min-width: 0;
+    font-size: 1rem;
+  }
+
+  .nav button { padding: 0.45rem 0.7rem; font-size: 0.9rem; }
+
+  .cal-header { font-size: 0.75rem; }
+
+  .cal-cell {
+    aspect-ratio: auto;
+    min-height: 48px;
+    padding: 0.2rem;
+  }
+
+  .cal-cell .solar { font-size: 0.9rem; }
+  .cal-cell .lunar { font-size: 0.58rem; }
+
+  .detail-panel { padding: 1rem; }
   .detail-panel .info-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 360px) {
+  .cal-cell .solar { font-size: 0.82rem; }
+  .cal-cell .lunar { font-size: 0.52rem; }
+  .nav .month-year { font-size: 0.9rem; }
 }
