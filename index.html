@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Âm lịch Việt Nam — tra cứu ngày âm lịch, Can Chi, tiết khí.">
+  <meta name="theme-color" content="#c0392b" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#e74c3c" media="(prefers-color-scheme: dark)">
+  <title>Âm Lịch Việt Nam</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Âm Lịch Việt Nam</h1>
+    <p class="subtitle">Vietnamese Lunar Calendar</p>
+  </header>
+
+  <main>
+    <section class="today-panel" id="todayPanel" aria-label="Thông tin hôm nay"></section>
+
+    <nav class="nav" aria-label="Điều hướng lịch">
+      <button type="button" data-action="prev-year" aria-label="Năm trước">&laquo;</button>
+      <button type="button" data-action="prev-month" aria-label="Tháng trước">&lsaquo;</button>
+      <button type="button" data-action="today" class="today-btn">Hôm nay</button>
+      <span class="month-year" id="monthYear" aria-live="polite"></span>
+      <button type="button" data-action="next-month" aria-label="Tháng sau">&rsaquo;</button>
+      <button type="button" data-action="next-year" aria-label="Năm sau">&raquo;</button>
+    </nav>
+
+    <div class="calendar" role="grid" aria-label="Lịch tháng">
+      <div class="cal-header" role="row">
+        <div role="columnheader">CN</div>
+        <div role="columnheader">T2</div>
+        <div role="columnheader">T3</div>
+        <div role="columnheader">T4</div>
+        <div role="columnheader">T5</div>
+        <div role="columnheader">T6</div>
+        <div role="columnheader">T7</div>
+      </div>
+      <div class="cal-grid" id="calGrid" role="rowgroup"></div>
+    </div>
+
+    <section class="detail-panel" id="detailPanel" aria-live="polite" aria-label="Chi tiết ngày">
+      <h3 id="detailTitle"></h3>
+      <div class="info-grid" id="detailGrid"></div>
+    </section>
+  </main>
+
+  <footer>
+    Thuật toán chuyển đổi âm lịch dựa trên công trình của
+    <cite>Hồ Ngọc Đức</cite>
+  </footer>
+</div>
+
+<script type="module">
+import { calendarMonthData, dateDetailData } from "./amlich.js";
+
+const TZ = 7;
+const SOLAR_MONTHS = [
+  "", "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+  "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
+];
+
+let currentMonth, currentYear, selectedDate;
+
+const $todayPanel = document.getElementById("todayPanel");
+const $monthYear  = document.getElementById("monthYear");
+const $calGrid    = document.getElementById("calGrid");
+const $detail     = document.getElementById("detailPanel");
+const $detailTitle = document.getElementById("detailTitle");
+const $detailGrid  = document.getElementById("detailGrid");
+
+// ---- Navigation (event delegation) ----
+
+document.querySelector(".nav").addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-action]");
+  if (!btn) return;
+  const action = btn.dataset.action;
+  if (action === "prev-year")  { currentYear--; }
+  if (action === "next-year")  { currentYear++; }
+  if (action === "prev-month") { currentMonth--; if (currentMonth < 1)  { currentMonth = 12; currentYear--; } }
+  if (action === "next-month") { currentMonth++; if (currentMonth > 12) { currentMonth = 1;  currentYear++; } }
+  if (action === "today") {
+    const now = new Date();
+    currentMonth = now.getMonth() + 1;
+    currentYear = now.getFullYear();
+    selectedDate = { d: now.getDate(), m: currentMonth, y: currentYear };
+    showDetail(selectedDate.d, selectedDate.m, selectedDate.y);
+  }
+  render();
+});
+
+// ---- Rendering ----
+
+function init() {
+  const now = new Date();
+  currentMonth = now.getMonth() + 1;
+  currentYear = now.getFullYear();
+  selectedDate = { d: now.getDate(), m: currentMonth, y: currentYear };
+  renderTodayPanel(now);
+  render();
+  showDetail(selectedDate.d, selectedDate.m, selectedDate.y);
+}
+
+function renderTodayPanel(now) {
+  const d = dateDetailData(now.getDate(), now.getMonth() + 1, now.getFullYear(), TZ);
+  $todayPanel.innerHTML =
+    '<div class="lunar-date">' + d.lunar.day + '</div>' +
+    '<div class="details">' +
+      '<div class="line"><strong>' + d.dayOfWeekName + '</strong>, ' +
+        d.solar.day + '/' + d.solar.month + '/' + d.solar.year + '</div>' +
+      '<div class="line">Ngày ' + d.lunar.day + ' ' + d.lunarMonthName +
+        ' năm ' + d.canChiYear + '</div>' +
+      '<div class="line canchi">Năm ' + d.canChiYear + ' — ' + d.animalYear + '</div>' +
+      '<div class="line">Ngày ' + d.canChiDay + ', tháng ' + d.canChiMonth + '</div>' +
+    '</div>';
+}
+
+function render() {
+  $monthYear.textContent = SOLAR_MONTHS[currentMonth] + " — " + currentYear;
+  $calGrid.innerHTML = "";
+
+  const cells = calendarMonthData(currentMonth, currentYear, TZ);
+  const now = new Date();
+  const todayD = now.getDate(), todayM = now.getMonth() + 1, todayY = now.getFullYear();
+
+  for (const c of cells) {
+    const el = document.createElement("button");
+    el.type = "button";
+    el.className = "cal-cell";
+    el.setAttribute("role", "gridcell");
+
+    if (c.empty) {
+      el.setAttribute("aria-disabled", "true");
+      el.tabIndex = -1;
+      $calGrid.appendChild(el);
+      continue;
+    }
+
+    if (c.isSunday)  el.classList.add("sunday");
+    if (c.isSaturday) el.classList.add("saturday");
+
+    const isToday = c.day === todayD && currentMonth === todayM && currentYear === todayY;
+    if (isToday) el.setAttribute("aria-current", "date");
+
+    const isSelected = selectedDate &&
+      c.day === selectedDate.d && currentMonth === selectedDate.m && currentYear === selectedDate.y;
+    if (isSelected) el.setAttribute("aria-pressed", "true");
+
+    el.setAttribute("aria-label",
+      c.day + "/" + currentMonth + "/" + currentYear + ", âm lịch " + c.lunarDay + "/" + c.lunarMonth);
+
+    el.innerHTML =
+      '<span class="solar">' + c.day + '</span>' +
+      '<span class="lunar' + (c.isFirstLunarDay ? ' first-day' : '') + '">' +
+        c.lunarLabel + '</span>';
+
+    el.addEventListener("click", () => {
+      selectedDate = { d: c.day, m: currentMonth, y: currentYear };
+      render();
+      showDetail(c.day, currentMonth, currentYear);
+    });
+
+    $calGrid.appendChild(el);
+  }
+}
+
+function showDetail(dd, mm, yy) {
+  const d = dateDetailData(dd, mm, yy, TZ);
+  $detail.classList.add("visible");
+  $detailTitle.textContent = d.dayOfWeekName + ", ngày " + dd + "/" + mm + "/" + yy;
+  $detailGrid.innerHTML =
+    '<span class="label">Âm lịch</span><span>Ngày ' + d.lunar.day + ' ' +
+      d.lunarMonthName + ' năm ' + d.canChiYear + '</span>' +
+    '<span class="label">Năm</span><span>' + d.canChiYear + ' (' + d.animalYear + ')</span>' +
+    '<span class="label">Tháng</span><span>' + d.canChiMonth + '</span>' +
+    '<span class="label">Ngày</span><span>' + d.canChiDay + '</span>' +
+    '<span class="label">Tiết khí</span><span>' + d.solarTerm + '</span>';
+}
+
+init();
+</script>
+
+</body>
+</html>

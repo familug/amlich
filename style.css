@@ -1,0 +1,313 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --red: #c0392b;
+  --red-light: #fff0ee;
+  --gold: #d4a017;
+  --bg: #fdfaf6;
+  --card: #ffffff;
+  --text: #2c2c2c;
+  --muted: #888;
+  --border: #e8e0d4;
+  --today-bg: #fef3cd;
+  --today-border: #d4a017;
+  --hover: #faf5ed;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  --red-hover: #a93226;
+  --sat-opacity: 0.7;
+  --focus-ring: 0 0 0 3px rgba(192, 57, 43, 0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --red: #e74c3c;
+    --red-light: #3a1a17;
+    --gold: #f0c040;
+    --bg: #1a1a1e;
+    --card: #242428;
+    --text: #e0ddd8;
+    --muted: #908d88;
+    --border: #3a3a3e;
+    --today-bg: #3a3020;
+    --today-border: #d4a017;
+    --hover: #2e2e32;
+    --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    --red-hover: #c0392b;
+    --sat-opacity: 0.8;
+    --focus-ring: 0 0 0 3px rgba(231, 76, 60, 0.45);
+  }
+}
+
+/* ========== Focus ========== */
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ========== Layout ========== */
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+header h1 {
+  font-size: 1.6rem;
+  color: var(--red);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+header .subtitle {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: 0.2rem;
+}
+
+/* ========== Today Panel ========== */
+
+.today-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.today-panel .lunar-date {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--red);
+  line-height: 1;
+  min-width: 60px;
+  text-align: center;
+}
+
+.today-panel .details {
+  flex: 1;
+  min-width: 200px;
+}
+
+.today-panel .details .line {
+  font-size: 0.92rem;
+  padding: 0.1rem 0;
+}
+
+.today-panel .details .line strong {
+  color: var(--red);
+}
+
+.today-panel .details .canchi {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+/* ========== Navigation ========== */
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.nav button {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--text);
+  transition: background 0.15s;
+}
+
+.nav button:hover { background: var(--hover); }
+
+.nav .month-year {
+  font-size: 1.15rem;
+  font-weight: 600;
+  min-width: 180px;
+  text-align: center;
+}
+
+.nav .today-btn {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+  font-weight: 600;
+}
+
+.nav .today-btn:hover { background: var(--red-hover); }
+.nav .today-btn:focus-visible { box-shadow: var(--focus-ring); }
+
+/* ========== Calendar Grid ========== */
+
+.calendar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.cal-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: var(--red);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cal-header div {
+  text-align: center;
+  padding: 0.6rem 0;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.cal-cell {
+  appearance: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  aspect-ratio: 1;
+  border: 1px solid var(--border);
+  border-top: none;
+  border-left: none;
+  padding: 0.3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.12s;
+  position: relative;
+  min-height: 70px;
+}
+
+.cal-cell:nth-child(7n+1) { border-left: none; }
+.cal-cell:nth-child(-n+7) { border-top: none; }
+.cal-cell:hover { background: var(--hover); }
+.cal-cell:focus-visible { box-shadow: var(--focus-ring); z-index: 1; }
+
+.cal-cell[aria-disabled="true"] {
+  cursor: default;
+  pointer-events: none;
+}
+
+.cal-cell .solar {
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.cal-cell .lunar {
+  font-size: 0.7rem;
+  color: var(--muted);
+  line-height: 1.2;
+  text-align: center;
+}
+
+.cal-cell.sunday .solar,
+.cal-cell.sunday .lunar { color: var(--red); }
+
+.cal-cell.saturday .solar { color: var(--red); opacity: var(--sat-opacity); }
+
+.cal-cell[aria-current="date"] {
+  background: var(--today-bg);
+  border-color: var(--today-border);
+  box-shadow: inset 0 0 0 2px var(--today-border);
+  border-radius: 4px;
+}
+
+.cal-cell[aria-pressed="true"] {
+  background: var(--red-light);
+  box-shadow: inset 0 0 0 2px var(--red);
+  border-radius: 4px;
+}
+
+.cal-cell .lunar.first-day {
+  color: var(--red);
+  font-weight: 600;
+}
+
+/* ========== Detail Panel ========== */
+
+.detail-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  margin-top: 1.5rem;
+  box-shadow: var(--shadow);
+  display: none;
+}
+
+.detail-panel.visible { display: block; }
+
+.detail-panel h3 {
+  font-size: 1rem;
+  color: var(--red);
+  margin-bottom: 0.6rem;
+}
+
+.detail-panel .info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.3rem 1.5rem;
+  font-size: 0.9rem;
+}
+
+.detail-panel .info-grid .label {
+  color: var(--muted);
+}
+
+/* ========== Footer ========== */
+
+footer {
+  text-align: center;
+  margin-top: 2rem;
+  padding: 1rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+/* ========== Responsive ========== */
+
+@media (max-width: 600px) {
+  .cal-cell { min-height: 55px; }
+  .cal-cell .solar { font-size: 0.95rem; }
+  .cal-cell .lunar { font-size: 0.6rem; }
+  .today-panel { flex-direction: column; text-align: center; gap: 0.8rem; }
+  .detail-panel .info-grid { grid-template-columns: 1fr; }
+}
