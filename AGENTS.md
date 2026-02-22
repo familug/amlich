@@ -15,6 +15,9 @@ amlich/
   style.css           All presentation — light/dark themes, responsive, a11y focus
   amlich.js           Pure functional core — all calendar logic (ES module)
   amlich.test.js      100 tests using Node.js built-in test runner
+  manifest.json       PWA web app manifest
+  sw.js               Service worker — cache-first offline support
+  icon.svg            App icon (SVG, used by manifest and favicon)
   AGENTS.md           This file
 ```
 
@@ -337,13 +340,56 @@ The CSS uses `env(safe-area-inset-*)` on `.container` for notched phones.
 The `<meta name="viewport">` includes `viewport-fit=cover` so the app
 extends behind the notch and applies its own inset padding.
 
+## Progressive Web App (PWA)
+
+The app is installable and works offline via standard PWA mechanisms.
+
+### Components
+
+- **`manifest.json`** — declares the app name, icons, display mode
+  (`standalone`), theme/background colors, start URL, and language.
+- **`sw.js`** — service worker with a versioned cache (`amlich-v1`).
+- **`icon.svg`** — single SVG icon used at all sizes. Red rounded-rect with
+  "Âm Lịch" text, matching the app's theme color.
+- **Registration** — a non-module `<script>` in `<head>` calls
+  `navigator.serviceWorker.register("./sw.js")`.
+
+### Caching strategy
+
+- **Install**: pre-caches all static assets (`./`, `index.html`, `style.css`,
+  `amlich.js`, `manifest.json`, `icon.svg`).
+- **Fetch**: cache-first — returns cached response if available, otherwise
+  fetches from network. External requests (e.g., Telegram SDK) are not cached
+  and will fail offline (this is fine — the SDK is inert outside Telegram).
+- **Activate**: deletes any caches whose name doesn't match the current
+  `CACHE` constant, enabling clean upgrades.
+
+### Updating the cache
+
+When you change any cached asset, bump the version string in `sw.js`:
+
+```js
+const CACHE = "amlich-v2";  // was v1
+```
+
+The new service worker will install alongside the old one, pre-cache the
+updated assets, then activate and delete the old cache. Users get the update
+on their next visit (after the new SW activates).
+
+### Apple / iOS
+
+`<meta name="apple-mobile-web-app-capable" content="yes">` enables full-screen
+mode when added to the home screen on iOS. The `apple-mobile-web-app-status-bar-style`
+is set to `black-translucent` to match the app's dark header area.
+
 ## Deployment
 
 ### GitHub Pages
 
 Push to GitHub and enable GitHub Pages (Settings → Pages → Branch: main).
-No build step required. The site serves `index.html`, `style.css`, and
-`amlich.js`. Other files (`amlich.test.js`, `AGENTS.md`) don't affect the site.
+No build step required. The site serves `index.html`, `style.css`, `amlich.js`,
+`manifest.json`, `sw.js`, and `icon.svg`. Other files (`amlich.test.js`,
+`AGENTS.md`) don't affect the site.
 
 ### Telegram Mini App
 
@@ -362,5 +408,5 @@ same deployment serves both the web page and the Telegram Mini App.
 - **Multi-timezone support** — currently hardcoded to TZ=7 in the UI. Could add
   a timezone selector; the core already accepts `timeZone` as a parameter.
 - ~~**Dark mode**~~ — done via `prefers-color-scheme: dark` media query.
-- **Year/month picker** — replace navigation buttons with dropdowns for faster
-  jumping.
+- ~~**Year/month picker**~~ — done via `<select>` dropdowns for month and year.
+- ~~**PWA / offline support**~~ — done via service worker and web app manifest.

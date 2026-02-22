@@ -1,0 +1,19 @@
+{
+  "name": "Âm Lịch Việt Nam",
+  "short_name": "Âm Lịch",
+  "description": "Tra cứu ngày âm lịch, Can Chi, tiết khí Việt Nam",
+  "lang": "vi",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#c0392b",
+  "background_color": "#f4f0eb",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
