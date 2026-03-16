@@ -68,7 +68,7 @@
 </div>
 
 <script type="module">
-import { calendarMonthData, dateDetailData } from "./amlich.js";
+import { calendarMonthData, dateDetailData, daysBetween, daysFromTodayLabel } from "./amlich.js";
 
 const TZ = 7;
 const SOLAR_MONTHS = [
@@ -260,9 +260,15 @@ function render() {
 
 function showDetail(dd, mm, yy) {
   const d = dateDetailData(dd, mm, yy, TZ);
+  const now = new Date();
+  const todayD = now.getDate(), todayM = now.getMonth() + 1, todayY = now.getFullYear();
+  const diff = daysBetween(todayD, todayM, todayY, dd, mm, yy);
+  const daysLabel = daysFromTodayLabel(diff);
+
   $detail.classList.add("visible");
   $detailTitle.textContent = d.dayOfWeekName + ", ngày " + dd + "/" + mm + "/" + yy;
   $detailGrid.innerHTML =
+    '<span class="label">Cách hôm nay</span><span class="days-from-today">' + daysLabel + '</span>' +
     '<span class="label">Âm lịch</span><span>Ngày ' + d.lunar.day + ' ' +
       d.lunarMonthName + ' năm ' + d.canChiYear + '</span>' +
     '<span class="label">Năm</span><span>' + d.canChiYear + ' (' + d.animalYear + ')</span>' +

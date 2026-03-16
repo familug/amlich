@@ -10,6 +10,7 @@ import {
   dayOfWeek, solarTerm,
   isLeapYear, daysInSolarMonth,
   lunarMonthName, lunarDateLabel,
+  daysBetween, daysFromTodayLabel,
   calendarMonthData, dateDetailData,
   CAN, CHI, THU, TIET_KHI,
 } from "./amlich.js";
@@ -360,6 +361,46 @@ describe("lunarDateLabel", () => {
   it("day 5 shows zero-padded", () => assert.equal(lunarDateLabel(5, 3, false), "05"));
   it("day 15 shows as-is", () => assert.equal(lunarDateLabel(15, 8, false), "15"));
   it("day 30 shows as-is", () => assert.equal(lunarDateLabel(30, 1, false), "30"));
+});
+
+// ========== daysBetween & daysFromTodayLabel ==========
+
+describe("daysBetween", () => {
+  it("same date returns 0", () => {
+    assert.equal(daysBetween(16, 3, 2025, 16, 3, 2025), 0);
+  });
+
+  it("next day returns 1", () => {
+    assert.equal(daysBetween(16, 3, 2025, 17, 3, 2025), 1);
+  });
+
+  it("previous day returns -1", () => {
+    assert.equal(daysBetween(16, 3, 2025, 15, 3, 2025), -1);
+  });
+
+  it("one week ahead returns 7", () => {
+    assert.equal(daysBetween(16, 3, 2025, 23, 3, 2025), 7);
+  });
+
+  it("one week ago returns -7", () => {
+    assert.equal(daysBetween(16, 3, 2025, 9, 3, 2025), -7);
+  });
+
+  it("crosses month boundary", () => {
+    assert.equal(daysBetween(31, 1, 2025, 1, 2, 2025), 1);
+  });
+
+  it("crosses year boundary", () => {
+    assert.equal(daysBetween(31, 12, 2024, 1, 1, 2025), 1);
+  });
+});
+
+describe("daysFromTodayLabel", () => {
+  it("0 returns Hôm nay", () => assert.equal(daysFromTodayLabel(0), "Hôm nay"));
+  it("1 returns 1 ngày nữa", () => assert.equal(daysFromTodayLabel(1), "1 ngày nữa"));
+  it("-1 returns 1 ngày trước", () => assert.equal(daysFromTodayLabel(-1), "1 ngày trước"));
+  it("7 returns 7 ngày nữa", () => assert.equal(daysFromTodayLabel(7), "7 ngày nữa"));
+  it("-30 returns 30 ngày trước", () => assert.equal(daysFromTodayLabel(-30), "30 ngày trước"));
 });
 
 // ========== calendarMonthData ==========

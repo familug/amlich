@@ -228,6 +228,17 @@ function lunarDateLabel(ld, lm, isLeap) {
   return ld < 10 ? "0" + ld : "" + ld;
 }
 
+// Days from date1 to date2. Positive = date2 is after date1.
+function daysBetween(dd1, mm1, yy1, dd2, mm2, yy2) {
+  return jdFromDate(dd2, mm2, yy2) - jdFromDate(dd1, mm1, yy1);
+}
+
+function daysFromTodayLabel(diff) {
+  if (diff === 0) return "Hôm nay";
+  if (diff > 0) return diff + " ngày nữa";
+  return -diff + " ngày trước";
+}
+
 // ========== Data Generation (Pure) ==========
 
 function calendarMonthData(mm, yy, timeZone) {
@@ -286,6 +297,7 @@ export {
   dayOfWeek, solarTerm,
   isLeapYear, daysInSolarMonth,
   lunarMonthName, lunarDateLabel,
+  daysBetween, daysFromTodayLabel,
   calendarMonthData, dateDetailData,
   CAN, CHI, CHI_ANIMAL, THANG, THU, TIET_KHI,
 };

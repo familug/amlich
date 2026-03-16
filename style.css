@@ -331,6 +331,11 @@ header .subtitle {
   color: var(--muted);
 }
 
+.detail-panel .days-from-today {
+  font-weight: 600;
+  color: var(--red);
+}
+
 /* ========== Footer ========== */
 
 footer {
